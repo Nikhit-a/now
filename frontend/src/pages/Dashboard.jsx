@@ -7,7 +7,6 @@ import {
     Route,
     Scale,
     ChartLine,
-    Bell,
     Search,
     ArrowUpRight,
     ArrowRight,
@@ -27,6 +26,7 @@ import {
 } from "lucide-react";
 
 import API from "../services/api";
+import NotificationPanel from "../components/NotificationPanel";
 
 function Dashboard() {
     const navigate = useNavigate();
@@ -222,10 +222,7 @@ function Dashboard() {
                             />
                         </div>
 
-                        <button className="notification-button" title="Notifications">
-                            <Bell size={20} />
-                            <span className="notification-dot" />
-                        </button>
+                        <NotificationPanel />
 
                         <div className="topbar-user">
                             <div className="user-avatar">

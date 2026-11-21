@@ -25,7 +25,25 @@ import { navigationItems } from "./config/navigation";
 function App() {
     return (
         <BrowserRouter>
-            <Toaster position="top-right" />
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    style: {
+                        background: "#10213a",
+                        color: "#e8eefb",
+                        border: "1px solid rgba(148, 170, 205, 0.18)",
+                        fontSize: "13px",
+                        borderRadius: "10px",
+                        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.35)",
+                    },
+                    success: {
+                        iconTheme: { primary: "#34d399", secondary: "#10213a" },
+                    },
+                    error: {
+                        iconTheme: { primary: "#f87171", secondary: "#10213a" },
+                    },
+                }}
+            />
 
             <Routes>
                 {/* Public routes */}

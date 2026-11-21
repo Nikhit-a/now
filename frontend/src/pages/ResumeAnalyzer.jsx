@@ -3,13 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   BrainCircuit, LayoutDashboard, Compass, FileText, ChartNoAxesColumnIncreasing,
-  Route, Scale, ChartLine, Settings, Bell, Search, LogOut, Menu, X,
+  Route, Scale, ChartLine, Settings, Search, LogOut, Menu, X,
   UploadCloud, File, FileCheck2, Sparkles, UserRound, GraduationCap,
   BriefcaseBusiness, Code2, Download, CheckCircle2, AlertCircle,
   RefreshCw, ArrowRight, History, Eye, ChevronRight,
   Lightbulb, Star, Trash2, RotateCw, ExternalLink, ChartPie, CalendarDays, Mail, Phone, MapPin, FileText as TextIcon
 } from "lucide-react";
 import API from "../services/api";
+import NotificationPanel from "../components/NotificationPanel";
 import "./ResumeAnalyzer.css";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -268,7 +269,7 @@ function ResumeAnalyzer() {
           </div>
           <div className="ra-topbar-right">
             <div className="ra-search"><Search size={17} /><input placeholder="Search for careers, skills, or insights..." disabled /></div>
-            <button className="ra-notification" aria-label="Notifications"><Bell size={19} /></button>
+                        <NotificationPanel />
             <div className="ra-user"><div className="ra-avatar">{initials(user?.name)}</div><div><strong>{user?.name || "User"}</strong><span>{user?.role || "Career Explorer"}</span></div></div>
           </div>
         </header>
