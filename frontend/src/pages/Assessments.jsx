@@ -626,7 +626,9 @@ export default function Assessments() {
   const endTimeRef = useRef(0);
   const submittedRef = useRef(false);
   const answersRef = useRef({});
-  answersRef.current = answers;
+  useEffect(() => {
+    answersRef.current = answers;
+  }, [answers]);
 
   const loadTopics = useCallback(async (silent = false) => {
     if (!silent) setLoadingTopics(true);
@@ -720,7 +722,9 @@ export default function Assessments() {
 
   // Timer and buttons always call the latest version
   const submitRef = useRef(submitQuiz);
-  submitRef.current = submitQuiz;
+  useEffect(() => {
+    submitRef.current = submitQuiz;
+  }, [submitQuiz]);
 
   useEffect(() => {
     if (view === "quiz" && attempt && secondsLeft === 0 && !submittedRef.current) {

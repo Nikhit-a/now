@@ -540,7 +540,7 @@ export default function MockInterview() {
   const [drafts, setDrafts] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
-  const questionStartRef = useRef(Date.now());
+  const questionStartRef = useRef(0);
 
   const [result, setResult] = useState(null);
   const [resultFrom, setResultFrom] = useState("interview");
@@ -654,7 +654,9 @@ export default function MockInterview() {
 
   // Always call the latest version of advance from the timer
   const advanceRef = useRef(advance);
-  advanceRef.current = advance;
+  useEffect(() => {
+    advanceRef.current = advance;
+  }, [advance]);
 
   useEffect(() => {
     if (view === "interview" && form.timerEnabled && secondsLeft === 0) {

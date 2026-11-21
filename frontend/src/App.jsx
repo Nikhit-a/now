@@ -31,7 +31,25 @@ import { navigationItems } from "./config/navigation";
 function App() {
     return (
         <BrowserRouter>
-            <Toaster position="top-right" />
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    style: {
+                        background: "#10213a",
+                        color: "#e8eefb",
+                        border: "1px solid rgba(148, 170, 205, 0.18)",
+                        fontSize: "13px",
+                        borderRadius: "10px",
+                        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.35)",
+                    },
+                    success: {
+                        iconTheme: { primary: "#34d399", secondary: "#10213a" },
+                    },
+                    error: {
+                        iconTheme: { primary: "#f87171", secondary: "#10213a" },
+                    },
+                }}
+            />
 
             <Routes>
                 {/* Public Routes */}
@@ -48,60 +66,15 @@ function App() {
 
                         {/* Profile */}
                         <Route path="/profile" element={<Profile />} />
-
-                        {/* Career & Resume */}
-                        <Route
-                            path="/resume-analyzer"
-                            element={<ResumeAnalyzer />}
-                        />
-                        <Route
-                            path="/career-explorer"
-                            element={<CareerExplorer />}
-                        />
-                        <Route
-                            path="/skill-analysis"
-                            element={<SkillAnalysis />}
-                        />
-                        <Route
-                            path="/learning-path"
-                            element={<LearningPath />}
-                        />
-
-                        {/* Interview Module */}
-                        <Route
-                            path="/mock-interview"
-                            element={<MockInterview />}
-                        />
-                        <Route
-                            path="/interview-preparation"
-                            element={<InterviewPreparation />}
-                        />
-
-                        {/* Notifications */}
-                        <Route
-                            path="/notifications"
-                            element={<Notifications />}
-                        />
-
-                        {/* Jobs & Assessments */}
-                        <Route
-                            path="/job-recommendations"
-                            element={<JobRecommendations />}
-                        />
-                        <Route
-                            path="/assessments"
-                            element={<Assessments />}
-                        />
-                        <Route
-                            path="/certificates"
-                            element={<Certificates />}
-                        />
-                        <Route
-                            path="/placement-drives"
-                            element={<PlacementDrives />}
-                        />
-
-                        {/* Support & Settings */}
+                        <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
+                        <Route path="/career-explorer" element={<CareerExplorer />} />
+                        <Route path="/skill-analysis" element={<SkillAnalysis />} />
+                        <Route path="/learning-path" element={<LearningPath />} />
+                        <Route path="/mock-interview" element={<MockInterview />} />
+                        <Route path="/job-recommendations" element={<JobRecommendations />} />
+                        <Route path="/assessments" element={<Assessments />} />
+                        <Route path="/certificates" element={<Certificates />} />
+                        <Route path="/placement-drives" element={<PlacementDrives />} />
                         <Route path="/help" element={<HelpSupport />} />
                         <Route path="/settings" element={<Settings />} />
 

@@ -2,14 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
-  BrainCircuit, FileText, ChartNoAxesColumnIncreasing,
-  Bell, Search, Menu, X,
+  BrainCircuit, LayoutDashboard, Compass, FileText, ChartNoAxesColumnIncreasing,
+  Route, Scale, ChartLine, Settings, Bell, Search, LogOut, Menu, X,
   UploadCloud, File, FileCheck2, Sparkles, UserRound, GraduationCap,
   BriefcaseBusiness, Code2, Download, CheckCircle2, AlertCircle,
   RefreshCw, History, Eye, ChevronRight,
   Lightbulb, Star, Trash2, RotateCw, ExternalLink, ChartPie, CalendarDays, Mail, Phone, MapPin, FileText as TextIcon
 } from "lucide-react";
 import API from "../services/api";
+import NotificationPanel from "../components/NotificationPanel";
 import "./ResumeAnalyzer.css";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -56,13 +57,13 @@ function ResumeAnalyzer() {
     window.dispatchEvent(new Event("ci:open-sidebar"));
   };
 
-  const authError = (status) => {
+  const authError = useCallback((status) => {
     if (status !== 401) return false;
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login", { replace: true });
     return true;
-  };
+  }, [navigate]);
 
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -77,7 +78,7 @@ function ResumeAnalyzer() {
     } finally {
       setHistoryLoading(false);
     }
-  }, [navigate]);
+  }, [authError]);
 
   useEffect(() => {
     let active = true;
@@ -95,7 +96,7 @@ function ResumeAnalyzer() {
       }
     })();
     return () => { active = false; };
-  }, [navigate]);
+  }, [authError]);
 
   const validateFile = (selected) => {
     if (!selected) return false;
@@ -233,7 +234,7 @@ function ResumeAnalyzer() {
           </div>
           <div className="ra-topbar-right">
             <div className="ra-search"><Search size={17} /><input placeholder="Search for careers, skills, or insights..." disabled /></div>
-            <button className="ra-notification" aria-label="Notifications"><Bell size={19} /></button>
+                        <NotificationPanel />
             <div className="ra-user"><div className="ra-avatar">{initials(user?.name)}</div><div><strong>{user?.name || "User"}</strong><span>{user?.role || "Career Explorer"}</span></div></div>
           </div>
         </header>

@@ -47,14 +47,16 @@ function LearningPath() {
 
     // Steps in order, each with its week range on the timeline.
     const steps = useMemo(() => {
-        let week = 1;
-        return [...(path?.items || [])]
-            .sort((a, b) => a.order - b.order)
-            .map((item) => {
-                const startWeek = week;
-                week += item.weeks;
-                return { ...item, startWeek, endWeek: week - 1 };
-            });
+        const sorted = [...(path?.items || [])].sort((a, b) => a.order - b.order);
+        let currentWeek = 1;
+        const result = [];
+        for (const item of sorted) {
+            const startWeek = currentWeek;
+            const endWeek = currentWeek + item.weeks - 1;
+            currentWeek += item.weeks;
+            result.push({ ...item, startWeek, endWeek });
+        }
+        return result;
     }, [path]);
 
     const doneCount = steps.filter((s) => s.completed).length;

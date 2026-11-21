@@ -139,11 +139,7 @@ export const navigationItems = [
             "Downloadable portfolio"
         ]
     },
-    {
-        label: "Settings",
-        path: "/profile",
-        icon: Settings
-    },
+    { label: "Settings", path: "/profile", icon: Settings },
     {
         label: "Help & Support",
         path: "/help",
