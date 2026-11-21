@@ -2,8 +2,10 @@ const axios = require("axios");
 const FormData = require("form-data");
 
 const analyzeResumeWithAI = async (file) => {
-    if (!process.env.AI_SERVICE_URL || !process.env.AI_SERVICE_SECRET) {
-        throw new Error("AI_SERVICE_URL and AI_SERVICE_SECRET must be configured.");
+    const aiUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+    const aiSecret = process.env.AI_SERVICE_SECRET || process.env.JWT_SECRET;
+    if (!aiSecret) {
+        throw new Error("AI_SERVICE_SECRET must be configured.");
     }
 
     const formData = new FormData();
@@ -13,12 +15,12 @@ const analyzeResumeWithAI = async (file) => {
     });
 
     const response = await axios.post(
-        `${process.env.AI_SERVICE_URL.replace(/\/$/, "")}/ai/parse-resume`,
+        `${aiUrl.replace(/\/$/, "")}/ai/parse-resume`,
         formData,
         {
             headers: {
                 ...formData.getHeaders(),
-                "x-internal-api-key": process.env.AI_SERVICE_SECRET
+                "x-internal-api-key": aiSecret
             },
             maxBodyLength: 6 * 1024 * 1024,
             timeout: 90000

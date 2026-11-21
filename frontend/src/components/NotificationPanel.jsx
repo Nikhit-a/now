@@ -50,7 +50,11 @@ function loadNotifications() {
 }
 
 function saveNotifications(list) {
-  localStorage.setItem(LS_KEY, JSON.stringify(list));
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(list));
+  } catch {
+    // ignore
+  }
 }
 
 /* ---------- helpers ---------- */
@@ -77,7 +81,7 @@ function typeIcon(type) {
 }
 
 /* ---------- component ---------- */
-export default function NotificationPanel() {
+export default function NotificationPanel({ className = "" }) {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState(loadNotifications);
   const panelRef = useRef(null);
@@ -113,7 +117,7 @@ export default function NotificationPanel() {
   const clearAll = () => setNotifications([]);
 
   return (
-    <div className="notif-wrapper" ref={panelRef}>
+    <div className={`notif-wrapper ${className}`.trim()} ref={panelRef}>
       <button
         className="notification-button"
         title="Notifications"

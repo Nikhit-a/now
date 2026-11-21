@@ -59,13 +59,13 @@ function ResumeAnalyzer() {
     navigate("/login", { replace: true });
   };
 
-  const authError = (status) => {
+  const authError = useCallback((status) => {
     if (status !== 401) return false;
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login", { replace: true });
     return true;
-  };
+  }, [navigate]);
 
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -80,7 +80,7 @@ function ResumeAnalyzer() {
     } finally {
       setHistoryLoading(false);
     }
-  }, [navigate]);
+  }, [authError]);
 
   useEffect(() => {
     let active = true;
@@ -98,7 +98,7 @@ function ResumeAnalyzer() {
       }
     })();
     return () => { active = false; };
-  }, [navigate]);
+  }, [authError]);
 
   const validateFile = (selected) => {
     if (!selected) return false;

@@ -47,7 +47,7 @@ export const navigationItems = [
         description: "Store and showcase your certifications in one place.",
         features: ["Upload certificates", "Verification status", "Downloadable portfolio"]
     },
-    { label: "Settings", path: "/profile", icon: Settings },
+    { label: "Settings", path: "/settings", icon: Settings },
     {
         label: "Help & Support", path: "/help", icon: LifeBuoy,
         description: "Guides, FAQs and ways to contact support.",

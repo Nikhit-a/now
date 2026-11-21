@@ -59,6 +59,7 @@ function App() {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/resume-analyzer" element={<ResumeAnalyzer />} />
                         <Route path="/career-explorer" element={<CareerExplorer />} />
+                        <Route path="/career-intelligence" element={<CareerExplorer />} />
                         <Route path="/skill-analysis" element={<SkillAnalysis />} />
                         <Route path="/learning-path" element={<LearningPath />} />
                         <Route path="/mock-interview" element={<MockInterview />} />
