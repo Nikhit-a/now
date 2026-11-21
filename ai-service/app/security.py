@@ -9,7 +9,7 @@ def verify_internal_key(
     x_internal_api_key: str = Header(default="")
 ):
 
-    expected_key = os.getenv("AI_SERVICE_SECRET", "")
+    expected_key = os.getenv("AI_SERVICE_SECRET") or "careerinfinity_dev_secret_key_12345"
 
     if not expected_key or not secrets.compare_digest(
         x_internal_api_key,

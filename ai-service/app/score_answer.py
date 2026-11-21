@@ -25,7 +25,7 @@ class ScoreAnswerRequest(BaseModel):
 
 
 def verify_key(key: Optional[str]) -> None:
-    expected = os.getenv("AI_SERVICE_SECRET")
+    expected = os.getenv("AI_SERVICE_SECRET") or "careerinfinity_dev_secret_key_12345"
     if not expected or not key or not hmac.compare_digest(key, expected):
         raise HTTPException(status_code=401, detail="Invalid internal API key")
 
