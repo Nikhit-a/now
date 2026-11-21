@@ -1,18 +1,70 @@
+
 const mongoose = require("mongoose");
 
 const interviewQuestionSchema = new mongoose.Schema(
   {
-    track: { type: String, required: true, index: true }, // e.g. "Web Development" or "General"
-    difficulty: { type: String, enum: ["Easy", "Medium", "Hard"], required: true },
-    type: { type: String, enum: ["technical", "behavioral"], required: true },
-    question: { type: String, required: true, unique: true, trim: true },
-    keywords: { type: [String], default: [] }, // "a|b" = alternatives, first one is the label
-    modelAnswer: { type: String, required: true },
-    active: { type: Boolean, default: true },
+    // Career category, such as Web Development or General
+    track: {
+      type: String,
+      required: true,
+      index: true,
+      trim: true,
+    },
+
+    // Question difficulty
+    difficulty: {
+      type: String,
+      enum: ["Easy", "Medium", "Hard"],
+      required: true,
+    },
+
+    // Question category
+    type: {
+      type: String,
+      enum: ["technical", "behavioral"],
+      required: true,
+    },
+
+    // Interview question
+    question: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+
+    // Keywords used for automated answer evaluation
+    // Example: ["React|ReactJS", "components", "hooks"]
+    keywords: {
+      type: [String],
+      default: [],
+    },
+
+    // Expected answer for evaluation and result feedback
+    modelAnswer: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    // Allows questions to be enabled or disabled
+    active: {
+      type: Boolean,
+      default: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-interviewQuestionSchema.index({ track: 1, difficulty: 1 });
+// Optimize filtering questions by career track and difficulty
+interviewQuestionSchema.index({
+  track: 1,
+  difficulty: 1,
+});
 
-module.exports = mongoose.model("InterviewQuestion", interviewQuestionSchema);
+module.exports = mongoose.model(
+  "InterviewQuestion",
+  interviewQuestionSchema
+);

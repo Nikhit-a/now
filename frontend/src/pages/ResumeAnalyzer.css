@@ -4,3 +4,16 @@
 @media(max-width:1250px){.ra-dashboard-grid{grid-template-columns:1fr 1fr}.ra-skills-chart-panel,.ra-insights-panel,.ra-extras-panel{grid-column:auto;grid-row:auto}.ra-education-panel{grid-column:1 / -1}.ra-chart-layout{gap:12px}.ra-donut{width:120px;height:120px}.ra-donut:before{inset:20px}}
 @media(max-width:950px){.ra-sidebar{transform:translateX(-100%);transition:transform .25s}.ra-sidebar.ra-sidebar-open{transform:translateX(0)}.ra-overlay{display:block;position:fixed;inset:0;z-index:35;border:0;background:#0009}.ra-main{width:100%;margin-left:0}.ra-mobile-menu{display:flex;border:0;background:none;color:#d8e7ff}.ra-mobile-close{display:block;margin-left:auto;border:0;background:none;color:#d8e7ff}.ra-topbar-left{gap:12px}.ra-upload-row{grid-template-columns:1fr}.ra-upload-box{min-height:190px}}
 @media(max-width:680px){.ra-topbar{height:64px;padding:0 13px}.ra-search,.ra-notification,.ra-user>div:last-child{display:none}.ra-content{padding:15px 12px}.ra-hero{align-items:flex-start;flex-wrap:wrap;padding:14px}.ra-hero-copy{min-width:0}.ra-hero-copy h1{font-size:21px}.ra-format-card{width:100%}.ra-file-card{align-items:flex-start;flex-wrap:wrap;padding:13px}.ra-file-preview{width:65px;height:85px}.ra-file-details{width:calc(100% - 85px)}.ra-file-actions{width:100%;grid-template-columns:repeat(3,1fr)}.ra-pipeline{gap:3px}.ra-pipeline small{font-size:7px}.ra-dashboard-grid{grid-template-columns:1fr}.ra-personal-panel,.ra-summary-panel,.ra-skills-chart-panel,.ra-experience-panel,.ra-extracted-skills-panel,.ra-insights-panel,.ra-education-panel,.ra-extras-panel{grid-column:1;grid-row:auto}.ra-chart-layout{justify-content:flex-start}.ra-section-nav button{padding:0 10px;font-size:9px}.ra-detail-skill-row{grid-template-columns:1fr;gap:7px}.ra-detail-skill-row small{text-align:left}.ra-score-layout{grid-template-columns:1fr;justify-items:center}.ra-score-breakdown{width:100%}.ra-result-meta,.ra-footer{flex-direction:column}.ra-history-item{flex-wrap:wrap}.ra-history-item>div{min-width:calc(100% - 50px)}}
+/* The shared AppLayout now provides the sidebar */
+.ra-layout.ra-layout-shared {
+  display: block;
+  padding-left: 0;
+  margin-left: 0;
+  min-height: auto;
+}
+
+.ra-layout.ra-layout-shared .ra-main {
+  margin-left: 0;
+  width: 100%;
+  max-width: 100%;
+}

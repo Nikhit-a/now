@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
-  BrainCircuit, LayoutDashboard, Compass, FileText, ChartNoAxesColumnIncreasing,
-  Route, Scale, ChartLine, Settings, Bell, Search, LogOut, Menu, X,
+  BrainCircuit, FileText, ChartNoAxesColumnIncreasing,
+  Bell, Search, Menu, X,
   UploadCloud, File, FileCheck2, Sparkles, UserRound, GraduationCap,
   BriefcaseBusiness, Code2, Download, CheckCircle2, AlertCircle,
-  RefreshCw, ArrowRight, History, Eye, ChevronRight,
+  RefreshCw, History, Eye, ChevronRight,
   Lightbulb, Star, Trash2, RotateCw, ExternalLink, ChartPie, CalendarDays, Mail, Phone, MapPin, FileText as TextIcon
 } from "lucide-react";
 import API from "../services/api";
@@ -40,7 +40,6 @@ function ResumeAnalyzer() {
   const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState("");
   const [activeSection, setActiveSection] = useState("extracted");
@@ -52,10 +51,9 @@ function ResumeAnalyzer() {
   const categoryEntries = Object.entries(categories).filter(([, values]) => asArray(values).length);
   const totalSkills = categoryEntries.reduce((sum, [, values]) => sum + asArray(values).length, 0) || skills.length;
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login", { replace: true });
+  // Opens the shared sidebar (components/Sidebar.jsx) on mobile
+  const openSidebar = () => {
+    window.dispatchEvent(new Event("ci:open-sidebar"));
   };
 
   const authError = (status) => {
@@ -208,17 +206,6 @@ function ResumeAnalyzer() {
     }
   };
 
-  const navItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { label: "AI Career Explorer", icon: Compass, disabled: true },
-    { label: "Resume Analyzer", icon: FileText, active: true },
-    { label: "Skill Gap Analysis", icon: ChartNoAxesColumnIncreasing, disabled: true },
-    { label: "Career Roadmap", icon: Route, disabled: true },
-    { label: "Career Comparison", icon: Scale, disabled: true },
-    { label: "Reports & Analytics", icon: ChartLine, disabled: true },
-    { label: "Profile & Settings", icon: Settings, path: "/profile" }
-  ];
-
   const sections = [
     ["extracted", "Extracted Information", FileText],
     ["skills", "Skills Analysis", ChartNoAxesColumnIncreasing],
@@ -237,33 +224,11 @@ function ResumeAnalyzer() {
   const metrics = parsed.insights?.metrics || {};
 
   return (
-    <div className="ra-layout">
-      {sidebarOpen && <button className="ra-overlay" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
-      <aside className={`ra-sidebar ${sidebarOpen ? "ra-sidebar-open" : ""}`}>
-        <div className="ra-brand">
-          <div className="ra-brand-icon"><BrainCircuit size={30} /></div>
-          <div><h1>Career<span>Cast</span></h1><p>AI Career Intelligence</p></div>
-          <button className="ra-mobile-close" onClick={() => setSidebarOpen(false)} aria-label="Close menu"><X size={20} /></button>
-        </div>
-        <p className="ra-sidebar-label">WORKSPACE</p>
-        <nav className="ra-navigation">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            return item.disabled
-              ? <div key={item.label} className="ra-nav-link ra-disabled-link"><Icon size={19} /><span>{item.label}</span><small>Soon</small></div>
-              : <Link key={item.label} to={item.path || "/resume-analyzer"} className={`ra-nav-link ${item.active ? "active" : ""}`} onClick={() => setSidebarOpen(false)}><Icon size={19} /><span>{item.label}</span></Link>;
-          })}
-        </nav>
-        <div className="ra-sidebar-bottom">
-          <div className="ra-sidebar-promo"><Sparkles size={23} /><h3>Build your career with AI</h3><p>Discover your skills and explore career opportunities.</p><Link to="/dashboard">Go to Dashboard <ArrowRight size={15} /></Link></div>
-          <button className="ra-logout" onClick={logout}><LogOut size={18} />Logout</button>
-        </div>
-      </aside>
-
+    <div className="ra-layout ra-layout-shared">
       <main className="ra-main">
         <header className="ra-topbar">
           <div className="ra-topbar-left">
-            <button className="ra-mobile-menu" onClick={() => setSidebarOpen(true)} aria-label="Open menu"><Menu size={22} /></button>
+            <button className="ra-mobile-menu" onClick={openSidebar} aria-label="Open menu"><Menu size={22} /></button>
             <div className="ra-breadcrumb"><span>Workspace</span><ChevronRight size={14} /><strong>Resume Analyzer</strong></div>
           </div>
           <div className="ra-topbar-right">
@@ -276,7 +241,7 @@ function ResumeAnalyzer() {
         <div className="ra-content">
           <section className="ra-hero">
             <div className="ra-hero-icon"><FileSearchIcon /></div>
-            <div className="ra-hero-copy"><span>AI-POWERED CAREER INTELLIGENCE</span><h1>Resume Analyzer</h1><p>Upload your resume and let CareerCast extract your skills, experience, education and more.</p></div>
+            <div className="ra-hero-copy"><span>AI-POWERED CAREER INTELLIGENCE</span><h1>Resume Analyzer</h1><p>Upload your resume and let CareerInfinity extract your skills, experience, education and more.</p></div>
             <div className="ra-format-card"><strong>Supported Formats</strong><div><span><File size={15} /> PDF</span><span><File size={15} /> DOCX</span><span><File size={15} /> TXT</span><small>Max size: 5 MB</small></div></div>
           </section>
 
@@ -321,7 +286,7 @@ function ResumeAnalyzer() {
                   <InfoLine icon={<Mail />} label="Email" value={personal.email} />
                   <InfoLine icon={<Phone />} label="Phone" value={personal.phone} />
                   <InfoLine icon={<MapPin />} label="Location" value={personal.location} />
-                  <InfoLine icon={<ExternalLink  />} label="LinkedIn" value={personal.linkedin} link />
+                  <InfoLine icon={<ExternalLink />} label="LinkedIn" value={personal.linkedin} link />
                   <InfoLine icon={<ExternalLink />} label="Website" value={personal.website} link />
                 </article>
 
@@ -334,7 +299,7 @@ function ResumeAnalyzer() {
                 <article className="ra-panel ra-skills-chart-panel">
                   <PanelHeading icon={<ChartPie size={18} />} title="Skills Distribution" />
                   {totalSkills ? <div className="ra-chart-layout">
-                    <div className="ra-donut" style={{ background: `conic-gradient(${categoryEntries.map(([ values], index, arr) => {
+                    <div className="ra-donut" style={{ background: `conic-gradient(${categoryEntries.map(([, values], index, arr) => {
                       const colors = ["#268cff", "#f39b4a", "#9b68f4", "#20c7b4", "#e85bbd"];
                       const start = arr.slice(0, index).reduce((sum, [, items]) => sum + items.length, 0) / totalSkills * 100;
                       const end = start + values.length / totalSkills * 100;
@@ -416,7 +381,7 @@ function ResumeAnalyzer() {
             {showHistory && (historyLoading ? <p className="ra-muted">Loading resume history...</p> : resumes.length ? <div className="ra-history-list">{resumes.map(item => <div className="ra-history-item" key={item._id}><FileText size={22} /><div><strong>{item.fileName}</strong><small>{formatDate(item.createdAt)} · {asArray(item.parsedData?.skills).length} skills</small></div><span className="ra-status">{item.analysisStatus}</span><button onClick={() => openResume(item._id)} title="View analysis"><Eye size={16} /></button><button className="danger" onClick={() => removeResume(item._id)} title="Remove"><Trash2 size={16} /></button></div>)}</div> : <p className="ra-muted">No saved resumes yet.</p>)}
           </section>
 
-          <footer className="ra-footer"><span>© {new Date().getFullYear()} CareerCast</span><span>AI-powered career intelligence</span></footer>
+          <footer className="ra-footer"><span>© {new Date().getFullYear()} CareerInfinity</span><span>AI-powered career intelligence</span></footer>
         </div>
       </main>
     </div>
