@@ -72,6 +72,7 @@ tabulate==0.10.0
 thinc==8.3.13
 threadpoolctl==3.7.0
 tokenizers==0.23.3
+torch==2.14.1
 tqdm==4.70.1
 transformers==5.20.2
 typer==0.27.3
