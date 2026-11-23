@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -33,6 +34,8 @@ function Dashboard() {
 
     const [user, setUser] = useState(null);
     const [profile, setProfile] = useState(null);
+    const [latestResume, setLatestResume] = useState(null);
+    const [completedResumeCount, setCompletedResumeCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -44,9 +47,14 @@ function Dashboard() {
             setError("");
 
             try {
-                const [userResult, profileResult] = await Promise.allSettled([
+                const [
+                    userResult,
+                    profileResult,
+                    resumeResult
+                ] = await Promise.allSettled([
                     API.get("/auth/me"),
-                    API.get("/profile")
+                    API.get("/profile"),
+                    API.get("/resume")
                 ]);
 
                 if (!isMounted) return;
@@ -82,8 +90,6 @@ function Dashboard() {
                     const status = profileResult.reason.response?.status;
 
                     if (status === 404) {
-                        // Profile does not exist yet.
-                        // Allow the dashboard to open.
                         setProfile({
                             education: [],
                             skills: [],
@@ -98,6 +104,42 @@ function Dashboard() {
                     } else {
                         throw profileResult.reason;
                     }
+                }
+
+                // Resume analysis information
+                if (resumeResult.status === "fulfilled") {
+                    const resumes = resumeResult.value.data.resumes || [];
+
+                    // Only consider successfully completed analyses.
+                    // The backend returns resumes sorted by newest first.
+                    const completedResumes = resumes.filter(
+                        (resume) => resume.analysisStatus === "completed"
+                    );
+
+                    setCompletedResumeCount(completedResumes.length);
+
+                    // Get the latest completed resume analysis.
+                    setLatestResume(completedResumes[0] || null);
+
+                } else {
+                    const status = resumeResult.reason.response?.status;
+
+                    if (status === 401) {
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("user");
+                        navigate("/login", { replace: true });
+                        return;
+                    }
+
+                    // Resume data is optional.
+                    // A resume API failure should not block the dashboard.
+                    console.error(
+                        "Unable to fetch resume information:",
+                        resumeResult.reason
+                    );
+
+                    setLatestResume(null);
+                    setCompletedResumeCount(0);
                 }
 
             } catch (err) {
@@ -133,7 +175,7 @@ function Dashboard() {
         window.location.reload();
     };
 
-    // Opens the shared sidebar (see components/Sidebar.jsx) on mobile.
+    // Opens the shared sidebar on mobile.
     const openSidebar = () => {
         window.dispatchEvent(new Event("ci:open-sidebar"));
     };
@@ -142,6 +184,12 @@ function Dashboard() {
     const education = profile?.education || [];
     const interests = profile?.interests || [];
     const preferredCareers = profile?.preferredCareer || [];
+
+    // Actual score returned by the Resume Analyzer.
+    const resumeScore =
+        latestResume?.parsedData?.insights?.resumeScore;
+
+    const hasResumeScore = typeof resumeScore === "number";
 
     const completedSections = [
         education.length > 0,
@@ -175,10 +223,18 @@ function Dashboard() {
                 </div>
                 <h2>Something went wrong</h2>
                 <p>{error}</p>
-                <button className="primary-button" onClick={retryLoading}>
+
+                <button
+                    className="primary-button"
+                    onClick={retryLoading}
+                >
                     Try Again <ArrowRight size={17} />
                 </button>
-                <button className="text-button" onClick={logout}>
+
+                <button
+                    className="text-button"
+                    onClick={logout}
+                >
                     Logout
                 </button>
             </div>
@@ -190,7 +246,7 @@ function Dashboard() {
     return (
         <div className="dashboard-layout">
 
-            {/* Main content (the sidebar now comes from AppLayout) */}
+            {/* Main content */}
             <main className="dashboard-main">
 
                 {/* Topbar */}
@@ -228,6 +284,7 @@ function Dashboard() {
                             <div className="user-avatar">
                                 <UserRound size={23} />
                             </div>
+
                             <div className="user-details">
                                 <strong>{user.name}</strong>
                                 <span>{user.role || "Student"}</span>
@@ -259,7 +316,10 @@ function Dashboard() {
                                 and build the skills needed to reach your goals.
                             </p>
 
-                            <Link to="/resume-analyzer" className="banner-button">
+                            <Link
+                                to="/resume-analyzer"
+                                className="banner-button"
+                            >
                                 Explore Resume Analyzer
                                 <ArrowRight size={18} />
                             </Link>
@@ -267,15 +327,22 @@ function Dashboard() {
 
                         <div className="welcome-visual">
                             <div className="visual-glow" />
+
                             <div className="visual-main-icon">
-                                <BrainCircuit size={100} strokeWidth={1.2} />
+                                <BrainCircuit
+                                    size={100}
+                                    strokeWidth={1.2}
+                                />
                             </div>
+
                             <div className="floating-icon floating-icon-one">
                                 <ChartLine size={25} />
                             </div>
+
                             <div className="floating-icon floating-icon-two">
                                 <Target size={25} />
                             </div>
+
                             <div className="floating-icon floating-icon-three">
                                 <Sparkles size={22} />
                             </div>
@@ -314,31 +381,70 @@ function Dashboard() {
 
                         <div className="stat-card">
                             <div className="stat-icon cyan">
-                                <Code2 size={25} />
+                                <FileText size={25} />
                             </div>
                             <div className="stat-info">
-                                <p>Skills Identified</p>
-                                <h3>{skills.length}</h3>
-                                <span className="stat-caption">Added to your profile</span>
+                                <p>Resume Analysis</p>
+                                <h3>{latestResume ? "Completed" : "Not Analyzed"}</h3>
+                                <span className="stat-caption">
+                                    {latestResume
+                                        ? latestResume.fileName
+                                        : "Upload your resume to get started"}
+                                </span>
                             </div>
                         </div>
 
                         <div className="stat-card">
                             <div className="stat-icon pink">
-                                <GraduationCap size={25} />
+                                <Target size={25} />
                             </div>
                             <div className="stat-info">
-                                <p>Education Records</p>
-                                <h3>{education.length}</h3>
-                                <span className="stat-caption">Your qualifications</span>
+                                <p>Resume Score</p>
+                                <h3>
+                                    {resumeScore !== undefined && resumeScore !== null
+                                        ? `${resumeScore}%`
+                                        : "--"}
+                                </h3>
+                                <span className="stat-caption">
+                                    {latestResume
+                                        ? "Based on your resume analysis"
+                                        : "Analyze your resume to view score"}
+                                </span>
                             </div>
                         </div>
 
                     </section>
 
+                    {/* Resume score action */}
+                    {!hasResumeScore && (
+                        <section className="dashboard-panel">
+                            <div className="panel-heading">
+                                <div>
+                                    <h3>
+                                        <FileText size={21} />
+                                        Get Your Resume Score
+                                    </h3>
+                                    <p>
+                                        Upload your resume to view your score
+                                        and discover areas for improvement.
+                                    </p>
+                                </div>
+
+                                <Link
+                                    to="/resume-analyzer"
+                                    className="panel-action"
+                                >
+                                    Analyze Resume
+                                    <ArrowUpRight size={16} />
+                                </Link>
+                            </div>
+                        </section>
+                    )}
+
                     {/* Main dashboard panels */}
                     <section className="dashboard-panels">
 
+                        {/* Education */}
                         <div className="dashboard-panel profile-panel">
                             <div className="panel-heading">
                                 <div>
@@ -348,22 +454,42 @@ function Dashboard() {
                                     </h3>
                                     <p>Your academic background</p>
                                 </div>
-                                <Link to="/profile" className="panel-action">
-                                    Edit Profile <ArrowUpRight size={16} />
+
+                                <Link
+                                    to="/profile"
+                                    className="panel-action"
+                                >
+                                    Edit Profile
+                                    <ArrowUpRight size={16} />
                                 </Link>
                             </div>
 
                             {education.length > 0 ? (
                                 <div className="education-list">
                                     {education.map((edu, index) => (
-                                        <div className="education-item" key={index}>
+                                        <div
+                                            className="education-item"
+                                            key={index}
+                                        >
                                             <div className="education-icon">
                                                 <GraduationCap size={21} />
                                             </div>
+
                                             <div>
-                                                <h4>{edu.degree || "Degree not specified"}</h4>
-                                                <p>{edu.institution || "Institution not specified"}</p>
-                                                <span>{edu.graduationYear || "Year not specified"}</span>
+                                                <h4>
+                                                    {edu.degree ||
+                                                        "Degree not specified"}
+                                                </h4>
+
+                                                <p>
+                                                    {edu.institution ||
+                                                        "Institution not specified"}
+                                                </p>
+
+                                                <span>
+                                                    {edu.graduationYear ||
+                                                        "Year not specified"}
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
@@ -372,11 +498,14 @@ function Dashboard() {
                                 <div className="empty-state">
                                     <GraduationCap size={28} />
                                     <p>No education details added yet.</p>
-                                    <Link to="/profile">Complete your profile</Link>
+                                    <Link to="/profile">
+                                        Complete your profile
+                                    </Link>
                                 </div>
                             )}
                         </div>
 
+                        {/* Technical Skills */}
                         <div className="dashboard-panel skills-panel">
                             <div className="panel-heading">
                                 <div>
@@ -386,14 +515,22 @@ function Dashboard() {
                                     </h3>
                                     <p>Your current skill set</p>
                                 </div>
-                                <span className="count-label">{skills.length} skills</span>
+
+                                <span className="count-label">
+                                    {skills.length} skills
+                                </span>
                             </div>
 
                             {skills.length > 0 ? (
                                 <div className="skill-tags">
                                     {skills.map((skill, index) => (
-                                        <span className="skill-tag" key={index}>
-                                            {typeof skill === "string" ? skill : skill.name}
+                                        <span
+                                            className="skill-tag"
+                                            key={index}
+                                        >
+                                            {typeof skill === "string"
+                                                ? skill
+                                                : skill.name}
                                         </span>
                                     ))}
                                 </div>
@@ -401,16 +538,19 @@ function Dashboard() {
                                 <div className="empty-state">
                                     <Code2 size={28} />
                                     <p>No skills added yet.</p>
-                                    <Link to="/profile">Add your skills</Link>
+                                    <Link to="/profile">
+                                        Add your skills
+                                    </Link>
                                 </div>
                             )}
                         </div>
 
                     </section>
 
-                    {/* Interests */}
+                    {/* Interests and Preferred Careers */}
                     <section className="dashboard-panels secondary-panels">
 
+                        {/* Career Interests */}
                         <div className="dashboard-panel">
                             <div className="panel-heading">
                                 <div>
@@ -425,17 +565,23 @@ function Dashboard() {
                             <div className="simple-list">
                                 {interests.length > 0 ? (
                                     interests.map((interest, index) => (
-                                        <div className="simple-list-item" key={index}>
+                                        <div
+                                            className="simple-list-item"
+                                            key={index}
+                                        >
                                             <CheckCircle2 size={17} />
                                             {interest}
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="muted-text">Add your career interests to your profile.</p>
+                                    <p className="muted-text">
+                                        Add your career interests to your profile.
+                                    </p>
                                 )}
                             </div>
                         </div>
 
+                        {/* Preferred Careers */}
                         <div className="dashboard-panel">
                             <div className="panel-heading">
                                 <div>
@@ -450,13 +596,18 @@ function Dashboard() {
                             <div className="simple-list">
                                 {preferredCareers.length > 0 ? (
                                     preferredCareers.map((career, index) => (
-                                        <div className="simple-list-item" key={index}>
+                                        <div
+                                            className="simple-list-item"
+                                            key={index}
+                                        >
                                             <ArrowUpRight size={17} />
                                             {career}
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="muted-text">Add your preferred careers to your profile.</p>
+                                    <p className="muted-text">
+                                        Add your preferred careers to your profile.
+                                    </p>
                                 )}
                             </div>
                         </div>
@@ -468,7 +619,9 @@ function Dashboard() {
                         <div className="section-heading">
                             <div>
                                 <h2>Explore Career Tools</h2>
-                                <p>Tools to help you move forward in your career.</p>
+                                <p>
+                                    Tools to help you move forward in your career.
+                                </p>
                             </div>
                         </div>
 
@@ -478,10 +631,19 @@ function Dashboard() {
                                 <div className="tool-icon blue">
                                     <FileText size={25} />
                                 </div>
+
                                 <h3>AI Resume Analyzer</h3>
-                                <p>Upload your resume and extract your skills, education, and experience using AI.</p>
-                                <Link to="/resume-analyzer" className="tool-link">
-                                    Analyze Resume <ArrowRight size={16} />
+                                <p>
+                                    Upload your resume and extract your skills,
+                                    education, and experience using AI.
+                                </p>
+
+                                <Link
+                                    to="/resume-analyzer"
+                                    className="tool-link"
+                                >
+                                    Analyze Resume
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -489,10 +651,19 @@ function Dashboard() {
                                 <div className="tool-icon purple">
                                     <ChartNoAxesColumnIncreasing size={25} />
                                 </div>
+
                                 <h3>Skill Gap Analysis</h3>
-                                <p>Discover the skills you need to develop for your desired career.</p>
-                                <Link to="/skill-analysis" className="tool-link">
-                                    Analyze Skills <ArrowRight size={16} />
+                                <p>
+                                    Discover the skills you need to develop
+                                    for your desired career.
+                                </p>
+
+                                <Link
+                                    to="/skill-analysis"
+                                    className="tool-link"
+                                >
+                                    Analyze Skills
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -500,10 +671,19 @@ function Dashboard() {
                                 <div className="tool-icon cyan">
                                     <Route size={25} />
                                 </div>
+
                                 <h3>Learning Path</h3>
-                                <p>Plan your learning journey with a structured career development path.</p>
-                                <Link to="/learning-path" className="tool-link">
-                                    Open Learning Path <ArrowRight size={16} />
+                                <p>
+                                    Plan your learning journey with a structured
+                                    career development path.
+                                </p>
+
+                                <Link
+                                    to="/learning-path"
+                                    className="tool-link"
+                                >
+                                    Open Learning Path
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -511,10 +691,19 @@ function Dashboard() {
                                 <div className="tool-icon pink">
                                     <Scale size={25} />
                                 </div>
+
                                 <h3>Career Explorer</h3>
-                                <p>Compare career options and understand their skill requirements.</p>
-                                <Link to="/career-explorer" className="tool-link">
-                                    Explore Careers <ArrowRight size={16} />
+                                <p>
+                                    Compare career options and understand
+                                    their skill requirements.
+                                </p>
+
+                                <Link
+                                    to="/career-explorer"
+                                    className="tool-link"
+                                >
+                                    Explore Careers
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -522,10 +711,19 @@ function Dashboard() {
                                 <div className="tool-icon blue">
                                     <MessageSquare size={25} />
                                 </div>
+
                                 <h3>Mock Interview</h3>
-                                <p>Practice career-specific questions and get an automated estimate of your answers.</p>
-                                <Link to="/mock-interview" className="tool-link">
-                                    Start Practice <ArrowRight size={16} />
+                                <p>
+                                    Practice career-specific questions and get
+                                    an automated estimate of your answers.
+                                </p>
+
+                                <Link
+                                    to="/mock-interview"
+                                    className="tool-link"
+                                >
+                                    Start Practice
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -533,10 +731,19 @@ function Dashboard() {
                                 <div className="tool-icon purple">
                                     <ClipboardCheck size={25} />
                                 </div>
+
                                 <h3>Assessments</h3>
-                                <p>Take timed skill quizzes and review explanations.</p>
-                                <Link to="/assessments" className="tool-link">
-                                    Take a Quiz <ArrowRight size={16} />
+                                <p>
+                                    Take timed skill quizzes and review
+                                    explanations.
+                                </p>
+
+                                <Link
+                                    to="/assessments"
+                                    className="tool-link"
+                                >
+                                    Take a Quiz
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -544,10 +751,19 @@ function Dashboard() {
                                 <div className="tool-icon cyan">
                                     <Award size={25} />
                                 </div>
+
                                 <h3>Certificates</h3>
-                                <p>Track your certificates, expiry dates and the skills they show.</p>
-                                <Link to="/certificates" className="tool-link">
-                                    Manage Certificates <ArrowRight size={16} />
+                                <p>
+                                    Track your certificates, expiry dates
+                                    and the skills they show.
+                                </p>
+
+                                <Link
+                                    to="/certificates"
+                                    className="tool-link"
+                                >
+                                    Manage Certificates
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -555,10 +771,19 @@ function Dashboard() {
                                 <div className="tool-icon pink">
                                     <CalendarClock size={25} />
                                 </div>
+
                                 <h3>Placement Drives</h3>
-                                <p>Check eligibility and deadlines for sample placement drives.</p>
-                                <Link to="/placement-drives" className="tool-link">
-                                    View Drives <ArrowRight size={16} />
+                                <p>
+                                    Check eligibility and deadlines for
+                                    sample placement drives.
+                                </p>
+
+                                <Link
+                                    to="/placement-drives"
+                                    className="tool-link"
+                                >
+                                    View Drives
+                                    <ArrowRight size={16} />
                                 </Link>
                             </div>
 
@@ -566,7 +791,9 @@ function Dashboard() {
                     </section>
 
                     <footer className="dashboard-footer">
-                        <span>© {new Date().getFullYear()} CareerInfinity</span>
+                        <span>
+                            © {new Date().getFullYear()} CareerInfinity
+                        </span>
                         <span>AI-powered career intelligence</span>
                     </footer>
 
