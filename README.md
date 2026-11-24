@@ -1,4 +1,4 @@
-# 🚀 CareerInfinity – AI-Powered Career Intelligence Platform
+ # 🚀 CareerInfinity – AI-Powered Career Intelligence Platform
 
 CareerInfinity is an AI-powered career intelligence platform designed to help students, fresh graduates, and working professionals make informed career decisions. It leverages Artificial Intelligence (AI), Machine Learning (ML), and Natural Language Processing (NLP) to analyze resumes, identify skills, predict suitable career paths, and provide personalized career recommendations.
 
@@ -18,7 +18,7 @@ CareerInfinity addresses these challenges through an intelligent career recommen
 - Work experience
 - Resume information
 
-Using AI and Machine Learning techniques, the platform analyzes this information to recommend suitable career paths based on the user's qualifications and existing skills.
+Using AI and Machine Learning techniques, the platform analyzes this information to recommend suitable career paths based on the user's qualifications , existing skills.
 
 It also provides skill gap analysis, resume improvement suggestions, career comparisons, and personalized career development roadmaps.
 
