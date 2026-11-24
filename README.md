@@ -6,7 +6,7 @@ The platform helps users understand their existing skill sets, identify missing 
 
 ---
 
-## 🎯 Project Overview
+## 🎯 Project   Overview
 
 Choosing the right career path can be challenging due to rapidly changing industry requirements, evolving technologies, and increasing competition in the job market.
 
